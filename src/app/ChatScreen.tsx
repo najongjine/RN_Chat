@@ -13,7 +13,18 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+type ChatMessageType = {
+  id: number;
+  roomId: string;
+  senderId: string;
+  recieverId: string;
+  text: string;
+  createdDt: string;
+};
+
 export default function ChatScreen() {
+  const HONO_SERVER_API = process.env.EXPO_PUBLIC_HONO_SERVER_API;
+
   return (
     <SafeAreaView style={styles.container}>
       <KeyboardAvoidingView
