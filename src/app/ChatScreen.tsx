@@ -41,7 +41,36 @@ export default function ChatScreen() {
       transports: ["websocket"],
     });
     setSocket(newSocket);
-  });
+    newSocket.on("connect", () => {
+      console.log(`서버 연결 성공`, newSocket?.id);
+      setConnected(true);
+
+      newSocket.emit("join_room", {
+        roomId: ROOM_ID,
+        userId: MY_USER_ID,
+      });
+      newSocket.emit("get_messages", {
+        roomId: ROOM_ID,
+      });
+    });
+    newSocket.on("disconnect", () => {
+      console.log(`서버 연결 끊김`);
+      setConnected(false);
+    });
+    newSocket.on("joined_room", (data) => {
+      console.log(`방 입장 완료`, data);
+    });
+    newSocket.on("message_list", (messageList: ChatMessageType[]) => {
+      setMessage(messageList);
+    });
+    newSocket.on("receive_message", (message: ChatMessageType) => {
+      setMessage((prev) => [...prev, message]);
+    });
+
+    return () => {
+      newSocket.disconnect();
+    };
+  }, []);
 
   return (
     <SafeAreaView style={styles.container}>
