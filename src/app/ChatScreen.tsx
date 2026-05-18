@@ -72,6 +72,17 @@ export default function ChatScreen() {
     };
   }, []);
 
+  const sendMessage = () => {
+    if (!socket) return;
+    if (!text?.trim()) return;
+    socket.emit("send_message", {
+      roomId: ROOM_ID,
+      senderId: MY_USER_ID,
+      receiverId: OTHER_USER_ID,
+      text: text?.trim() || "",
+    });
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <KeyboardAvoidingView
@@ -88,7 +99,7 @@ export default function ChatScreen() {
 
         <FlatList
           style={styles.messageList}
-          data={messages}
+          data={message}
           keyExtractor={(item) => item.id.toString()}
           renderItem={({ item }) => {
             const isMine = item.senderId === MY_USER_ID;
