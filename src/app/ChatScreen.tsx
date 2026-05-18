@@ -1,6 +1,6 @@
 // src/app/explore.tsx
 
-import React from "react";
+import React, { useState } from "react";
 import {
   Button,
   FlatList,
@@ -12,6 +12,7 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { Socket } from "socket.io-client";
 
 type ChatMessageType = {
   id: number;
@@ -27,6 +28,11 @@ export default function ChatScreen() {
   const MY_USER_ID = "user1";
   const OTHER_USER_ID = "user2";
   const ROOM_ID = `${MY_USER_ID}_${OTHER_USER_ID}`;
+
+  const [socket, setSocket] = useState<Socket | null>(null);
+  const [connected, setConnected] = useState(false);
+  const [text, setText] = useState("");
+  const [message, setMessage] = useState<ChatMessageType[]>([]);
 
   return (
     <SafeAreaView style={styles.container}>
