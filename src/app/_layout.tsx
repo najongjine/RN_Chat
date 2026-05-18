@@ -13,9 +13,9 @@ export default function RootLayout() {
       />
 
       <Tabs.Screen
-        name="explore"
+        name="ChatScreen"
         options={{
-          title: "탐색",
+          title: "채팅",
         }}
       />
     </Tabs>

@@ -8,7 +8,7 @@ export default function HomeScreen() {
     <View style={styles.container}>
       <Text style={styles.title}>홈 화면</Text>
 
-      <Link href="/explore" asChild>
+      <Link href="/ChatScreen" asChild>
         <Button title="탐색 화면으로 이동" />
       </Link>
     </View>
