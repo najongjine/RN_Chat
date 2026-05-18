@@ -1,6 +1,6 @@
 // src/app/explore.tsx
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Button,
   FlatList,
@@ -12,7 +12,7 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Socket } from "socket.io-client";
+import { io, Socket } from "socket.io-client";
 
 type ChatMessageType = {
   id: number;
@@ -33,6 +33,15 @@ export default function ChatScreen() {
   const [connected, setConnected] = useState(false);
   const [text, setText] = useState("");
   const [message, setMessage] = useState<ChatMessageType[]>([]);
+
+  // 화면 진입하면 무조건 실행
+  useEffect(() => {
+    // 소켓을 직접 조작하기 위해서 socket 객체를 만듬
+    const newSocket = io(HONO_SERVER_API, {
+      transports: ["websocket"],
+    });
+    setSocket(newSocket);
+  });
 
   return (
     <SafeAreaView style={styles.container}>
