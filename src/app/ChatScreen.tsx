@@ -1,13 +1,145 @@
 // src/app/explore.tsx
 
-import { StyleSheet, Text, View } from "react-native";
+import React from "react";
+import {
+  Button,
+  FlatList,
+  KeyboardAvoidingView,
+  Platform,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function ChatScreen() {
   return (
-    <View>
-      <Text>챗 화면</Text>
-    </View>
+    <SafeAreaView style={styles.container}>
+      <KeyboardAvoidingView
+        style={styles.keyboardArea}
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
+      >
+        <View style={styles.header}>
+          <Text style={styles.title}>1:1 채팅</Text>
+          <Text style={connected ? styles.connected : styles.disconnected}>
+            {connected ? "서버 연결됨" : "서버 연결 안 됨"}
+          </Text>
+        </View>
+
+        <FlatList
+          style={styles.messageList}
+          data={messages}
+          keyExtractor={(item) => item.id.toString()}
+          renderItem={({ item }) => {
+            const isMine = item.senderId === MY_USER_ID;
+
+            return (
+              <View
+                style={[
+                  styles.messageRow,
+                  isMine ? styles.myMessageRow : styles.otherMessageRow,
+                ]}
+              >
+                <View
+                  style={[
+                    styles.messageBubble,
+                    isMine ? styles.myBubble : styles.otherBubble,
+                  ]}
+                >
+                  <Text style={styles.senderText}>
+                    {isMine ? "나" : item.senderId}
+                  </Text>
+                  <Text style={styles.messageText}>{item.text}</Text>
+                </View>
+              </View>
+            );
+          }}
+        />
+
+        <View style={styles.inputArea}>
+          <TextInput
+            style={styles.input}
+            value={text}
+            onChangeText={setText}
+            placeholder="메시지 입력"
+          />
+          <Button title="전송" onPress={sendMessage} />
+        </View>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
 
-const styles = StyleSheet.create({});
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#ffffff",
+  },
+  keyboardArea: {
+    flex: 1,
+  },
+  header: {
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: "#dddddd",
+  },
+  title: {
+    fontSize: 22,
+    fontWeight: "bold",
+  },
+  connected: {
+    marginTop: 4,
+    color: "green",
+  },
+  disconnected: {
+    marginTop: 4,
+    color: "red",
+  },
+  messageList: {
+    flex: 1,
+    padding: 12,
+  },
+  messageRow: {
+    marginVertical: 4,
+  },
+  myMessageRow: {
+    alignItems: "flex-end",
+  },
+  otherMessageRow: {
+    alignItems: "flex-start",
+  },
+  messageBubble: {
+    maxWidth: "75%",
+    padding: 10,
+    borderRadius: 10,
+  },
+  myBubble: {
+    backgroundColor: "#d2f8d2",
+  },
+  otherBubble: {
+    backgroundColor: "#eeeeee",
+  },
+  senderText: {
+    fontSize: 12,
+    color: "#555555",
+    marginBottom: 4,
+  },
+  messageText: {
+    fontSize: 16,
+  },
+  inputArea: {
+    flexDirection: "row",
+    padding: 8,
+    borderTopWidth: 1,
+    borderTopColor: "#dddddd",
+  },
+  input: {
+    flex: 1,
+    borderWidth: 1,
+    borderColor: "#cccccc",
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    marginRight: 8,
+  },
+});
