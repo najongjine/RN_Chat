@@ -37,14 +37,21 @@ export default function ChatScreen() {
   // 화면 진입하면 무조건 실행
   useEffect(() => {
     // 소켓을 직접 조작하기 위해서 socket 객체를 만듬
+    /* 쉽게 생각하면 const newSocket = io(HONO_SERVER_API...
+    이 코드가 socket 서버 접속 해주는놈  */
     const newSocket = io(HONO_SERVER_API, {
       transports: ["websocket"],
     });
-    setSocket(newSocket);
-    newSocket.on("connect", () => {
-      console.log(`서버 연결 성공`, newSocket?.id);
-      setConnected(true);
 
+    setSocket(newSocket); // 화면에 보일때 쓰려고 state변수에 또 따로 저장
+
+    // connect라는 메세지 받으면 어떻게 할거야?
+    newSocket.on("connect", () => {
+      // f12 콘솔에 연결성공이라는 글자 띄울거야
+      console.log(`서버 연결 성공`, newSocket?.id);
+      setConnected(true); // 화면에 보일때 쓰려고 state변수에 또 따로 저장
+
+      // emit: 메세지 발사
       newSocket.emit("join_room", {
         roomId: ROOM_ID,
         userId: MY_USER_ID,
