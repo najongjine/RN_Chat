@@ -1,5 +1,6 @@
 // src/app/explore.tsx
 
+import { useLocalSearchParams } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
   Button,
@@ -25,9 +26,10 @@ type ChatMessageType = {
 
 export default function ChatScreen() {
   const HONO_SERVER_API = process.env.EXPO_PUBLIC_HONO_SERVER_API;
-  const MY_USER_ID = "user1";
-  const OTHER_USER_ID = "user2";
-  const ROOM_ID = `${MY_USER_ID}_${OTHER_USER_ID}`;
+  const params = useLocalSearchParams();
+  const MY_USER_ID = String(params.userId || "user1");
+  const OTHER_USER_ID = String(params.otherId || "user2");
+  const ROOM_ID = [MY_USER_ID, OTHER_USER_ID].sort().join("_");
 
   const [socket, setSocket] = useState<Socket | null>(null);
   const [connected, setConnected] = useState(false);
