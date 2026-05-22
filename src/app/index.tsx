@@ -23,6 +23,8 @@ export default function HomeScreen() {
     }, []), // 빈 배열을 두어 초기 렌더링 시에만 콜백을 생성하도록 함
   );
 
+  async function getUserList() {}
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>홈 화면</Text>
