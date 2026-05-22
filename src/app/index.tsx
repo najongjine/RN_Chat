@@ -15,7 +15,7 @@ export default function HomeScreen() {
     useCallback(() => {
       // 1. 화면에 들어올 때(포커스 될 때) 실행할 작업
       console.log("화면이 포커스 되었습니다! 데이터를 새로고침합니다.");
-      init;
+      init();
       return () => {
         console.log(
           "화면에서 포커스가 해제되었습니다. 타이머 등을 정리합니다.",
