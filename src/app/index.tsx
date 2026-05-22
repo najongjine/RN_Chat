@@ -2,10 +2,14 @@
 
 import { useFocusEffect } from "@react-navigation/native";
 import { Link } from "expo-router";
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { Button, StyleSheet, Text, View } from "react-native";
 
 export default function HomeScreen() {
+  const [userList, setUserList] = useState<UserType[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [erroMsg, setErrorMsg] = useState("");
+
   useFocusEffect(
     useCallback(() => {
       // 1. 화면에 들어올 때(포커스 될 때) 실행할 작업
