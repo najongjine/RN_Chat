@@ -50,7 +50,7 @@ export default function HomeScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>홈 화면</Text>
+      <Text style={styles.title}>{JSON.stringify(userList)}</Text>
 
       <Link href="/ChatScreen" asChild>
         <Button title="탐색 화면으로 이동" />
