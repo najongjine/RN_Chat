@@ -6,6 +6,7 @@ import { useCallback, useState } from "react";
 import { Button, StyleSheet, Text, View } from "react-native";
 
 export default function HomeScreen() {
+  const API_BASE_URL = process.env.EXPO_PUBLIC_HONO_SERVER_API;
   const [userList, setUserList] = useState<UserType[]>([]);
   const [loading, setLoading] = useState(false);
   const [erroMsg, setErrorMsg] = useState("");
@@ -27,7 +28,25 @@ export default function HomeScreen() {
     }, []), // 빈 배열을 두어 초기 렌더링 시에만 콜백을 생성하도록 함
   );
 
-  async function getUserList() {}
+  async function getUserList() {
+    try {
+      setLoading(true);
+      setErrorMsg("");
+      const response = await fetch(`${API_BASE_URL}/api/user/get_user_list`);
+      const result: ApiResultType = await response.json();
+
+      if (!result?.success) {
+        setErrorMsg(result?.msg || "유저목록 불러오기 실패");
+        return;
+      }
+      setUserList(result?.data || []);
+    } catch (error: any) {
+      setErrorMsg(error?.msg || "유저목록 불러오기 실패");
+      return;
+    } finally {
+      setLoading(false);
+    }
+  }
 
   return (
     <View style={styles.container}>
