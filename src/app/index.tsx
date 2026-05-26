@@ -11,10 +11,12 @@ import {
   Text,
   View,
 } from "react-native";
+import { useAuth } from "@/context/AuthContext";
 import { ApiResultType, UserType } from "./type/types";
 
 export default function HomeScreen() {
   const API_BASE_URL = process.env.EXPO_PUBLIC_HONO_SERVER_API;
+  const { accessToken, user, signOut } = useAuth();
   const [userList, setUserList] = useState<UserType[]>([]);
   const [loading, setLoading] = useState(false);
   const [erroMsg, setErrorMsg] = useState("");
@@ -40,7 +42,11 @@ export default function HomeScreen() {
     try {
       setLoading(true);
       setErrorMsg("");
-      const response = await fetch(`${API_BASE_URL}/api/user/get_user_list`);
+      const response = await fetch(`${API_BASE_URL}/api/user/get_user_list`, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
       const result: ApiResultType = await response.json();
 
       if (!result?.success) {
@@ -48,8 +54,10 @@ export default function HomeScreen() {
         return;
       }
       setUserList(result?.data || []);
-    } catch (error: any) {
-      setErrorMsg(error?.msg || "유저목록 불러오기 실패");
+    } catch (error: unknown) {
+      setErrorMsg(
+        error instanceof Error ? error.message : "유저목록 불러오기 실패",
+      );
       return;
     } finally {
       setLoading(false);
@@ -58,6 +66,10 @@ export default function HomeScreen() {
 
   return (
     <View style={styles.container}>
+      <View style={styles.authHeader}>
+        <Text style={styles.welcome}>{user?.display_name}님 로그인됨</Text>
+        <Button title="로그아웃" onPress={() => void signOut()} />
+      </View>
       <Text style={styles.title}>유저 목록</Text>
 
       {loading && <ActivityIndicator size="large" />}
@@ -100,6 +112,16 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginBottom: 20,
     textAlign: "center",
+  },
+  authHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 18,
+  },
+  welcome: {
+    fontSize: 16,
+    fontWeight: "bold",
   },
   list: {
     flex: 1,

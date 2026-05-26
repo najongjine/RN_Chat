@@ -1,51 +1,84 @@
-// https://chatgpt.com/share/6a14e956-62c4-83ab-966b-536b4d8d6ac3
-
-import { useFocusEffect } from "@react-navigation/native";
-import { useCallback, useState } from "react";
-import { Button, StyleSheet, Text, TextInput, View } from "react-native";
+import { useAuth } from "@/context/AuthContext";
+import { useState } from "react";
+import {
+  ActivityIndicator,
+  Button,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
+import { ApiResultType, AuthSessionType } from "./type/types";
 
 export default function LoginScreen() {
   const API_BASE_URL = process.env.EXPO_PUBLIC_HONO_SERVER_API;
+  const { signIn, signOut } = useAuth();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [erroMsg, setErrorMsg] = useState("");
-
-  useFocusEffect(
-    useCallback(() => {
-      // 1. 화면에 들어올 때(포커스 될 때) 실행할 작업
-      console.log("화면이 포커스 되었습니다! 데이터를 새로고침합니다.");
-      init();
-      return () => {
-        console.log(
-          "화면에서 포커스가 해제되었습니다. 타이머 등을 정리합니다.",
-        );
-        // 예: 구독 해제, interval 정지 등
-      };
-    }, []), // 빈 배열을 두어 초기 렌더링 시에만 콜백을 생성하도록 함
-  );
-  async function init() {}
+  const [errorMsg, setErrorMsg] = useState("");
+  const [loading, setLoading] = useState(false);
 
   async function login() {
-    try {
-    } catch (error: any) {
-      setErrorMsg(error?.msg || "로그인 실패");
+    if (!username.trim() || !password) {
+      setErrorMsg("아이디와 비밀번호를 입력해주세요.");
       return;
+    }
+
+    try {
+      setLoading(true);
+      setErrorMsg("");
+
+      const response = await fetch(`${API_BASE_URL}/api/user/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          username: username.trim(),
+          password,
+        }),
+      });
+      const result: ApiResultType<AuthSessionType> = await response.json();
+
+      if (!result.success || !result.data) {
+        setErrorMsg(result.msg || "로그인 실패");
+        return;
+      }
+
+      await signIn(result.data);
+    } catch (error: unknown) {
+      setErrorMsg(error instanceof Error ? error.message : "로그인 실패");
     } finally {
+      setLoading(false);
     }
   }
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>로그인</Text>
-      <View>
-        <TextInput />
-      </View>
-      <View>
-        <TextInput />
-      </View>
-      <View>
-        <Button title="로그인" />
-      </View>
+
+      <TextInput
+        style={styles.input}
+        value={username}
+        onChangeText={setUsername}
+        placeholder="아이디"
+        autoCapitalize="none"
+      />
+      <TextInput
+        style={styles.input}
+        value={password}
+        onChangeText={setPassword}
+        placeholder="비밀번호"
+        secureTextEntry
+        onSubmitEditing={() => void login()}
+      />
+
+      {errorMsg !== "" && <Text style={styles.errorText}>{errorMsg}</Text>}
+      {loading ? (
+        <ActivityIndicator size="large" />
+      ) : (
+        <Button title="로그인" onPress={() => void login()} />
+      )}
     </View>
   );
 }
@@ -59,7 +92,21 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 26,
     fontWeight: "bold",
-    marginBottom: 20,
+    marginBottom: 30,
     textAlign: "center",
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: "#cccccc",
+    borderRadius: 8,
+    backgroundColor: "#ffffff",
+    paddingHorizontal: 12,
+    paddingVertical: 12,
+    marginBottom: 12,
+  },
+  errorText: {
+    color: "red",
+    textAlign: "center",
+    marginBottom: 12,
   },
 });

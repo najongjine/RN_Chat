@@ -5,8 +5,18 @@ export type UserType = {
   created_at: string;
 };
 
-export type ApiResultType = {
+export type AuthUserType = Pick<
+  UserType,
+  "id" | "username" | "display_name"
+>;
+
+export type AuthSessionType = {
+  access_token: string;
+  user: AuthUserType;
+};
+
+export type ApiResultType<T = UserType[]> = {
   success: boolean;
-  data?: UserType[];
+  data?: T;
   msg?: string;
 };

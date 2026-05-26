@@ -1,5 +1,6 @@
 // src/app/explore.tsx
 
+import { useAuth } from "@/context/AuthContext";
 import { useLocalSearchParams } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
@@ -27,7 +28,8 @@ type ChatMessageType = {
 export default function ChatScreen() {
   const HONO_SERVER_API = process.env.EXPO_PUBLIC_HONO_SERVER_API;
   const params = useLocalSearchParams();
-  const MY_USER_ID = String(params.userId || "user1");
+  const { user, accessToken } = useAuth();
+  const MY_USER_ID = String(user?.id);
   const OTHER_USER_ID = String(params.otherId || "user2");
   const ROOM_ID = [MY_USER_ID, OTHER_USER_ID].sort().join("_");
 
@@ -101,6 +103,7 @@ export default function ChatScreen() {
         <View style={styles.header}>
           <Text>{HONO_SERVER_API}</Text>
           <Text style={styles.title}>1:1 채팅</Text>
+          <Text>{user?.display_name}님으로 접속 중</Text>
           <Text style={connected ? styles.connected : styles.disconnected}>
             {connected ? "서버 연결됨" : "서버 연결 안 됨"}
           </Text>
