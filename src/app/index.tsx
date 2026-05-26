@@ -4,6 +4,7 @@ import { useFocusEffect } from "@react-navigation/native";
 import { Link } from "expo-router";
 import { useCallback, useState } from "react";
 import { Button, StyleSheet, Text, View } from "react-native";
+import { ApiResultType, UserType } from "./type/types";
 
 export default function HomeScreen() {
   const API_BASE_URL = process.env.EXPO_PUBLIC_HONO_SERVER_API;
