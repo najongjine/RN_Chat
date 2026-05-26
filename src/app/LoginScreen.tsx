@@ -28,15 +28,12 @@ export default function LoginScreen() {
       setLoading(true);
       setErrorMsg("");
 
-      const response = await fetch(`${API_BASE_URL}/api/user/login`, {
+      const response = await fetch(`${API_BASE_URL}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          username: username.trim(),
-          password,
-        }),
+        body: JSON.stringify({}),
       });
       const result: ApiResultType<AuthSessionType> = await response.json();
 
