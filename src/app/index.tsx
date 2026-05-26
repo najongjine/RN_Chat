@@ -1,4 +1,4 @@
-// src/app/index.tsx
+// https://chatgpt.com/share/6a14e956-62c4-83ab-966b-536b4d8d6ac3
 
 import { useFocusEffect } from "@react-navigation/native";
 import { Link } from "expo-router";
