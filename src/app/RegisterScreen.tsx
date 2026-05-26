@@ -16,6 +16,7 @@ export default function RegisterScreen() {
   const { signIn } = useAuth();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [display_name, setDisplay_name] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -29,7 +30,7 @@ export default function RegisterScreen() {
       setLoading(true);
       setErrorMsg("");
 
-      const response = await fetch(`${API_BASE_URL}/api/user/login`, {
+      const response = await fetch(`${API_BASE_URL}/api/user/register`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -37,19 +38,20 @@ export default function RegisterScreen() {
         body: JSON.stringify({
           username: username.trim(),
           password,
+          display_name,
         }),
       });
       const result: ApiResultType<AuthSessionType> = await response.json();
 
       if (!result.success || !result.data) {
-        setErrorMsg(result.msg || "로그인 실패");
+        setErrorMsg(result.msg || "회원가입 실패");
         return;
       }
 
       await signIn(result.data);
       router.replace("/");
     } catch (error: unknown) {
-      setErrorMsg(error instanceof Error ? error.message : "로그인 실패");
+      setErrorMsg(error instanceof Error ? error.message : "회원가입 실패");
     } finally {
       setLoading(false);
     }
@@ -57,12 +59,19 @@ export default function RegisterScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>로그인</Text>
+      <Text style={styles.title}>회원가입</Text>
 
       <TextInput
         style={styles.input}
         value={username}
         onChangeText={setUsername}
+        placeholder="아이디"
+        autoCapitalize="none"
+      />
+      <TextInput
+        style={styles.input}
+        value={display_name}
+        onChangeText={setDisplay_name}
         placeholder="아이디"
         autoCapitalize="none"
       />
@@ -79,7 +88,7 @@ export default function RegisterScreen() {
       {loading ? (
         <ActivityIndicator size="large" />
       ) : (
-        <Button title="로그인" onPress={() => void login()} />
+        <Button title="회원가입" onPress={() => void login()} />
       )}
     </View>
   );

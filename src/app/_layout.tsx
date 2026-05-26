@@ -1,8 +1,8 @@
 // src/app/_layout.tsx
 
+import { AuthProvider, useAuth } from "@/context/AuthContext";
 import { Tabs } from "expo-router";
 import { ActivityIndicator, StyleSheet, View } from "react-native";
-import { AuthProvider, useAuth } from "@/context/AuthContext";
 
 export default function RootLayout() {
   return (
@@ -38,15 +38,19 @@ function RootTabs() {
           title: "채팅",
         }}
       />
-
-      <Tabs.Protected guard={!session}>
-        <Tabs.Screen
-          name="LoginScreen"
-          options={{
-            title: "로그인",
-          }}
-        />
-      </Tabs.Protected>
+      <Tabs.Screen
+        name="RegisterScreen"
+        options={{
+          title: "회원가입",
+        }}
+      />
+      <Tabs.Screen
+        name="LoginScreen"
+        options={{
+          title: "로그인",
+        }}
+      />
+      <Tabs.Protected guard={!session}></Tabs.Protected>
     </Tabs>
   );
 }
