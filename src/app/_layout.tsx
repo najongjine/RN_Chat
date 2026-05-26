@@ -25,28 +25,25 @@ function RootTabs() {
 
   return (
     <Tabs>
-      <Tabs.Protected guard={!!session}>
-        <Tabs.Screen
-          name="index"
-          options={{
-            title: "홈",
-          }}
-        />
+      <Tabs.Screen
+        name="index"
+        options={{
+          title: "홈",
+        }}
+      />
 
-        <Tabs.Screen
-          name="ChatScreen"
-          options={{
-            title: "채팅",
-          }}
-        />
-      </Tabs.Protected>
+      <Tabs.Screen
+        name="ChatScreen"
+        options={{
+          title: "채팅",
+        }}
+      />
 
       <Tabs.Protected guard={!session}>
         <Tabs.Screen
           name="LoginScreen"
           options={{
             title: "로그인",
-            tabBarStyle: { display: "none" },
           }}
         />
       </Tabs.Protected>

@@ -1,4 +1,5 @@
 import { useAuth } from "@/context/AuthContext";
+import { router } from "expo-router";
 import { useState } from "react";
 import {
   ActivityIndicator,
@@ -12,7 +13,7 @@ import { ApiResultType, AuthSessionType } from "./type/types";
 
 export default function LoginScreen() {
   const API_BASE_URL = process.env.EXPO_PUBLIC_HONO_SERVER_API;
-  const { signIn, signOut } = useAuth();
+  const { signIn } = useAuth();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
@@ -28,12 +29,15 @@ export default function LoginScreen() {
       setLoading(true);
       setErrorMsg("");
 
-      const response = await fetch(`${API_BASE_URL}`, {
+      const response = await fetch(`${API_BASE_URL}/api/user/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({}),
+        body: JSON.stringify({
+          username: username.trim(),
+          password,
+        }),
       });
       const result: ApiResultType<AuthSessionType> = await response.json();
 
@@ -43,6 +47,7 @@ export default function LoginScreen() {
       }
 
       await signIn(result.data);
+      router.replace("/");
     } catch (error: unknown) {
       setErrorMsg(error instanceof Error ? error.message : "로그인 실패");
     } finally {
