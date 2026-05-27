@@ -40,9 +40,6 @@ export default function ChatScreen() {
 
   // 화면 진입하면 무조건 실행
   useEffect(() => {
-    if (!HONO_SERVER_API) return;
-    if (!user?.id) return;
-    if (!params.otherId) return;
     // 소켓을 직접 조작하기 위해서 socket 객체를 만듬
     /* 쉽게 생각하면 const newSocket = io(HONO_SERVER_API...
     이 코드가 socket 서버 접속 해주는놈  */
