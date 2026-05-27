@@ -1,17 +1,18 @@
 // https://chatgpt.com/share/6a14e956-62c4-83ab-966b-536b4d8d6ac3
 
+import { useAuth } from "@/context/AuthContext";
 import { useFocusEffect } from "@react-navigation/native";
-import { Link } from "expo-router";
+import { Link, router } from "expo-router";
 import { useCallback, useState } from "react";
 import {
   ActivityIndicator,
   Button,
   FlatList,
+  Pressable,
   StyleSheet,
   Text,
   View,
 } from "react-native";
-import { useAuth } from "@/context/AuthContext";
 import { ApiResultType, UserType } from "./type/types";
 
 export default function HomeScreen() {
@@ -86,11 +87,22 @@ export default function HomeScreen() {
         style={styles.list}
         contentContainerStyle={styles.listContent}
         renderItem={({ item }) => (
-          <View style={styles.userCard}>
+          <Pressable
+            style={styles.userCard}
+            onPress={() => {
+              router.push({
+                pathname: "/ChatScreen",
+                params: {
+                  otherId: Number(item?.id || 0),
+                  otherName: String(item?.display_name || ""),
+                },
+              });
+            }}
+          >
             <Text style={styles.username}>{item.username}</Text>
             <Text style={styles.displayName}>{item.display_name}</Text>
             <Text style={styles.createdAt}>가입일: {item.created_at}</Text>
-          </View>
+          </Pressable>
         )}
       />
 

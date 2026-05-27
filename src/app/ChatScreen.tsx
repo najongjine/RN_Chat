@@ -28,6 +28,8 @@ type ChatMessageType = {
 export default function ChatScreen() {
   const HONO_SERVER_API = process.env.EXPO_PUBLIC_HONO_SERVER_API;
   const params = useLocalSearchParams();
+  const otherId = Number(params?.otherId || 0);
+  const otherName = String(params?.otherName || "");
   const { user, accessToken } = useAuth();
   const MY_USER_ID = String(user?.id);
   const OTHER_USER_ID = String(params.otherId || "user2");
@@ -102,6 +104,9 @@ export default function ChatScreen() {
       >
         <View style={styles.header}>
           <Text>{HONO_SERVER_API}</Text>
+          <Text style={styles.title}>
+            otherid:{otherId}, othername:{otherName}
+          </Text>
           <Text style={styles.title}>1:1 채팅</Text>
           <Text>{user?.display_name}님으로 접속 중</Text>
           <Text style={connected ? styles.connected : styles.disconnected}>
