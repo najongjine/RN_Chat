@@ -31,9 +31,7 @@ export default function ChatScreen() {
   const otherId = Number(params?.otherId || 0);
   const otherName = String(params?.otherName || "");
   const { user, accessToken } = useAuth();
-  const MY_USER_ID = String(user?.id);
-  const OTHER_USER_ID = String(params.otherId || "user2");
-  const ROOM_ID = [MY_USER_ID, OTHER_USER_ID].sort().join("_");
+  const [roomId, setRoomId] = useState("");
 
   const [socket, setSocket] = useState<Socket | null>(null);
   const [connected, setConnected] = useState(false);
@@ -42,6 +40,9 @@ export default function ChatScreen() {
 
   // 화면 진입하면 무조건 실행
   useEffect(() => {
+    if (!HONO_SERVER_API) return;
+    if (!user?.id) return;
+    if (!params.otherId) return;
     // 소켓을 직접 조작하기 위해서 socket 객체를 만듬
     /* 쉽게 생각하면 const newSocket = io(HONO_SERVER_API...
     이 코드가 socket 서버 접속 해주는놈  */
@@ -59,11 +60,9 @@ export default function ChatScreen() {
 
       // emit: 메세지 발사
       newSocket.emit("join_room", {
-        roomId: ROOM_ID,
-        userId: MY_USER_ID,
-      });
-      newSocket.emit("get_messages", {
-        roomId: ROOM_ID,
+        receiverId: otherId,
+        userId: user?.id || 0,
+        roomType: "direct",
       });
     });
     newSocket.on("disconnect", () => {
@@ -71,7 +70,20 @@ export default function ChatScreen() {
       setConnected(false);
     });
     newSocket.on("joined_room", (data) => {
-      console.log(`방 입장 완료`, data);
+      console.log("방 입장 완료", data);
+
+      if (!data?.success) {
+        console.log("방 입장 실패:", data?.msg || "");
+        return;
+      }
+
+      // 서버가 준 진짜 roomId 저장
+      setRoomId(data?.roomId || "");
+
+      // 그 roomId로 이전 메시지 조회
+      newSocket.emit("get_messages", {
+        roomId: data.roomId,
+      });
     });
     newSocket.on("message_list", (messageList: ChatMessageType[]) => {
       setMessage(messageList);
@@ -83,17 +95,20 @@ export default function ChatScreen() {
     return () => {
       newSocket.disconnect();
     };
-  }, []);
+  }, [HONO_SERVER_API, user?.id, otherId]);
 
   const sendMessage = () => {
     if (!socket) return;
-    if (!text?.trim()) return;
+    if (!roomId) return;
+    if (!text.trim()) return;
+
     socket.emit("send_message", {
-      roomId: ROOM_ID,
-      senderId: MY_USER_ID,
-      receiverId: OTHER_USER_ID,
+      roomId,
+      senderId: Number(user?.id || 0),
+      receiverId: Number(otherId),
       text: text?.trim() || "",
     });
+    setText("");
   };
 
   return (
