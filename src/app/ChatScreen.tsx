@@ -134,7 +134,7 @@ export default function ChatScreen() {
           data={message}
           keyExtractor={(item) => item.id.toString()}
           renderItem={({ item }) => {
-            const isMine = item.senderId === MY_USER_ID;
+            const isMine = item.senderId == String(user?.id || 0);
 
             return (
               <View
