@@ -117,8 +117,9 @@ export default function ChatScreen() {
         <View style={styles.header}>
           <Text>{HONO_SERVER_API}</Text>
           <Text style={styles.title}>
-            otherid:{otherId}, othername:{otherName}
+            userId:{user?.id || 0}, otherid:{otherId}, othername:{otherName}
           </Text>
+          <Text>roomId:{roomId}</Text>
           <Text style={styles.title}>1:1 채팅</Text>
           <Text>{user?.display_name}님으로 접속 중</Text>
           <Text style={connected ? styles.connected : styles.disconnected}>

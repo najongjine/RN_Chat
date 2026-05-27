@@ -72,7 +72,7 @@ export default function RegisterScreen() {
         style={styles.input}
         value={display_name}
         onChangeText={setDisplay_name}
-        placeholder="아이디"
+        placeholder="닉네임"
         autoCapitalize="none"
       />
       <TextInput
