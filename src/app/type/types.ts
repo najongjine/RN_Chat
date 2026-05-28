@@ -26,6 +26,8 @@ export type ChatMessageType = {
   senderId: string;
   recieverId: string;
   text: string;
+  messageType?: "text" | "tarot";
+  tarotCardId?: string | null;
   createdDt: string;
 };
 

@@ -96,15 +96,17 @@ export default function ChatScreen() {
   const sendMessage = () => {
     if (!socket) return;
     if (!roomId) return;
-    if (!text.trim()) return;
+    if (!text.trim() && !selectedTarotCard) return;
 
     socket.emit("send_message", {
       roomId,
       senderId: Number(user?.id || 0),
       receiverId: Number(otherId),
-      text: text?.trim() || "",
+      text: text.trim(),
+      tarotCardId: selectedTarotCard?.id || null,
     });
     setText("");
+    setSelectedTarotCard(null);
   };
 
   return (
@@ -132,6 +134,9 @@ export default function ChatScreen() {
           keyExtractor={(item) => item.id.toString()}
           renderItem={({ item }) => {
             const isMine = item.senderId == String(user?.id || 0);
+            const tarotCard = item.tarotCardId
+              ? tarotCards.find((card) => card.id === item.tarotCardId)
+              : null;
 
             return (
               <View
@@ -149,7 +154,20 @@ export default function ChatScreen() {
                   <Text style={styles.senderText}>
                     {isMine ? "나" : item.senderId}
                   </Text>
-                  <Text style={styles.messageText}>{item.text}</Text>
+                  {tarotCard && (
+                    <View style={styles.tarotMessageArea}>
+                      <Image
+                        source={tarotCard.image}
+                        style={styles.tarotMessageImage}
+                      />
+                      <Text style={styles.tarotMessageName}>
+                        {tarotCard.name}
+                      </Text>
+                    </View>
+                  )}
+                  {!!item.text && (
+                    <Text style={styles.messageText}>{item.text}</Text>
+                  )}
                 </View>
               </View>
             );
@@ -258,6 +276,22 @@ const styles = StyleSheet.create({
   },
   messageText: {
     fontSize: 16,
+  },
+  tarotMessageArea: {
+    marginBottom: 6,
+  },
+  tarotMessageImage: {
+    width: 120,
+    height: 180,
+    borderRadius: 6,
+    resizeMode: "contain",
+    backgroundColor: "#eeeeee",
+  },
+  tarotMessageName: {
+    marginTop: 6,
+    fontSize: 14,
+    fontWeight: "700",
+    color: "#222222",
   },
   selectedTarotArea: {
     flexDirection: "row",
