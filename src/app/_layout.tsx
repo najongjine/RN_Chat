@@ -70,21 +70,24 @@ function RootTabs() {
         name="ChatScreen"
         options={{
           title: "채팅",
+          href: null,
         }}
       />
-      <Tabs.Screen
-        name="RegisterScreen"
-        options={{
-          title: "회원가입",
-        }}
-      />
-      <Tabs.Screen
-        name="LoginScreen"
-        options={{
-          title: "로그인",
-        }}
-      />
-      <Tabs.Protected guard={!session}></Tabs.Protected>
+
+      <Tabs.Protected guard={!user?.id}>
+        <Tabs.Screen
+          name="RegisterScreen"
+          options={{
+            title: "회원가입",
+          }}
+        />
+        <Tabs.Screen
+          name="LoginScreen"
+          options={{
+            title: "로그인",
+          }}
+        />
+      </Tabs.Protected>
     </Tabs>
   );
 }
