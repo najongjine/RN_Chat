@@ -5,10 +5,7 @@ export type UserType = {
   created_at: string;
 };
 
-export type AuthUserType = Pick<
-  UserType,
-  "id" | "username" | "display_name"
->;
+export type AuthUserType = Pick<UserType, "id" | "username" | "display_name">;
 
 export type AuthSessionType = {
   access_token: string;
@@ -19,4 +16,19 @@ export type ApiResultType<T = UserType[]> = {
   success: boolean;
   data?: T;
   msg?: string;
+};
+
+export type ChatMessageType = {
+  id: number;
+  roomId: string;
+  senderId: string;
+  recieverId: string;
+  text: string;
+  createdDt: string;
+};
+
+export type TarotCardType = {
+  id: string;
+  name: string;
+  image: any;
 };

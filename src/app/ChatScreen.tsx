@@ -15,15 +15,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { io, Socket } from "socket.io-client";
-
-type ChatMessageType = {
-  id: number;
-  roomId: string;
-  senderId: string;
-  recieverId: string;
-  text: string;
-  createdDt: string;
-};
+import { ChatMessageType, TarotCardType } from "./type/types";
 
 export default function ChatScreen() {
   const HONO_SERVER_API = process.env.EXPO_PUBLIC_HONO_SERVER_API;
@@ -37,6 +29,10 @@ export default function ChatScreen() {
   const [connected, setConnected] = useState(false);
   const [text, setText] = useState("");
   const [message, setMessage] = useState<ChatMessageType[]>([]);
+
+  const [tarotModalVisible, setTarotModalVisible] = useState(false);
+  const [selectedTarotCard, setSelectedTarotCard] =
+    useState<TarotCardType | null>(null);
 
   // 화면 진입하면 무조건 실행
   useEffect(() => {
@@ -157,6 +153,9 @@ export default function ChatScreen() {
           }}
         />
 
+        <View>
+          <Button title="타로" onPress={() => setTarotModalVisible(true)} />
+        </View>
         <View style={styles.inputArea}>
           <TextInput
             style={styles.input}
