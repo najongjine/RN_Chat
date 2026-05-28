@@ -1,5 +1,7 @@
 // src/app/explore.tsx
 
+import { TarotCardPickerModal } from "@/components/TarotCardPickerModal";
+import { tarotCards } from "@/constants/tarotCards";
 import { useAuth } from "@/context/AuthContext";
 import { useLocalSearchParams } from "expo-router";
 import React, { useEffect, useState } from "react";
@@ -165,6 +167,18 @@ export default function ChatScreen() {
           />
           <Button title="전송" onPress={sendMessage} />
         </View>
+        <TarotCardPickerModal
+          visible={tarotModalVisible}
+          cards={tarotCards}
+          selectedCard={selectedTarotCard}
+          onClose={() => {
+            setTarotModalVisible(false);
+          }}
+          onSelectCard={(card) => {
+            setSelectedTarotCard(card);
+            setTarotModalVisible(false);
+          }}
+        />
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
