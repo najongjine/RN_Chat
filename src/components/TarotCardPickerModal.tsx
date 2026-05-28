@@ -48,9 +48,7 @@ export function TarotCardPickerModal({
           <FlatList
             data={cards}
             keyExtractor={(item) => item.id}
-            numColumns={3}
             contentContainerStyle={styles.cardList}
-            columnWrapperStyle={styles.cardRow}
             renderItem={({ item }) => {
               const isSelected = selectedCard?.id === item.id;
 
@@ -111,15 +109,14 @@ const styles = StyleSheet.create({
     color: "#333333",
   },
   cardList: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 10,
     paddingBottom: 24,
   },
-  cardRow: {
-    gap: 10,
-  },
   cardItem: {
-    flex: 1,
-    minHeight: 178,
-    marginBottom: 12,
+    width: 96,
+    minHeight: 176,
     padding: 8,
     borderWidth: 1,
     borderColor: "#dddddd",
@@ -132,9 +129,10 @@ const styles = StyleSheet.create({
   },
   cardImage: {
     width: "100%",
-    aspectRatio: 0.62,
+    height: 128,
     borderRadius: 6,
     backgroundColor: "#e8e8e8",
+    resizeMode: "contain",
   },
   cardName: {
     minHeight: 36,

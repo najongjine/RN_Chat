@@ -8,6 +8,7 @@ import React, { useEffect, useState } from "react";
 import {
   Button,
   FlatList,
+  Image,
   KeyboardAvoidingView,
   Platform,
   StyleSheet,
@@ -158,6 +159,23 @@ export default function ChatScreen() {
         <View>
           <Button title="타로" onPress={() => setTarotModalVisible(true)} />
         </View>
+
+        {selectedTarotCard && (
+          <View style={styles.selectedTarotArea}>
+            <Image
+              source={selectedTarotCard.image}
+              style={styles.selectedTarotImage}
+            />
+            <View style={styles.selectedTarotTextArea}>
+              <Text style={styles.selectedTarotLabel}>선택한 타로 카드</Text>
+              <Text style={styles.selectedTarotName}>
+                {selectedTarotCard.name}
+              </Text>
+            </View>
+            <Button title="취소" onPress={() => setSelectedTarotCard(null)} />
+          </View>
+        )}
+
         <View style={styles.inputArea}>
           <TextInput
             style={styles.input}
@@ -240,6 +258,35 @@ const styles = StyleSheet.create({
   },
   messageText: {
     fontSize: 16,
+  },
+  selectedTarotArea: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    padding: 8,
+    borderTopWidth: 1,
+    borderTopColor: "#dddddd",
+    backgroundColor: "#f8f8f8",
+  },
+  selectedTarotImage: {
+    width: 42,
+    height: 62,
+    borderRadius: 4,
+    resizeMode: "contain",
+    backgroundColor: "#eeeeee",
+  },
+  selectedTarotTextArea: {
+    flex: 1,
+  },
+  selectedTarotLabel: {
+    fontSize: 12,
+    color: "#666666",
+  },
+  selectedTarotName: {
+    marginTop: 2,
+    fontSize: 15,
+    fontWeight: "700",
+    color: "#222222",
   },
   inputArea: {
     flexDirection: "row",
