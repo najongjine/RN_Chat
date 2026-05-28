@@ -1,3 +1,5 @@
+import { ImageSourcePropType } from "react-native";
+
 export type UserType = {
   id: number;
   username: string;
@@ -30,5 +32,5 @@ export type ChatMessageType = {
 export type TarotCardType = {
   id: string;
   name: string;
-  image: any;
+  image: ImageSourcePropType;
 };
