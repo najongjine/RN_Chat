@@ -1,8 +1,14 @@
 // src/app/_layout.tsx
 
 import { AuthProvider, useAuth } from "@/context/AuthContext";
-import { Tabs } from "expo-router";
-import { ActivityIndicator, StyleSheet, View } from "react-native";
+import { router, Tabs } from "expo-router";
+import {
+  ActivityIndicator,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 
 export default function RootLayout() {
   return (
@@ -13,7 +19,7 @@ export default function RootLayout() {
 }
 
 function RootTabs() {
-  const { session, isLoading } = useAuth();
+  const { session, user, isLoading, signOut } = useAuth();
 
   if (isLoading) {
     return (
@@ -23,8 +29,36 @@ function RootTabs() {
     );
   }
 
+  async function handleSignOut() {
+    await signOut();
+    router.replace("/LoginScreen");
+  }
+
+  const headerRight = () =>
+    user ? (
+      <View style={styles.headerAuth}>
+        <View style={styles.userInfo}>
+          <Text style={styles.displayName} numberOfLines={1}>
+            {user.display_name}님
+          </Text>
+          <Text style={styles.username} numberOfLines={1}>
+            @{user.username}
+          </Text>
+        </View>
+        <Pressable
+          style={({ pressed }) => [
+            styles.logoutButton,
+            pressed && styles.logoutButtonPressed,
+          ]}
+          onPress={() => void handleSignOut()}
+        >
+          <Text style={styles.logoutText}>로그아웃</Text>
+        </Pressable>
+      </View>
+    ) : null;
+
   return (
-    <Tabs>
+    <Tabs screenOptions={{ headerRight }}>
       <Tabs.Screen
         name="index"
         options={{
@@ -60,5 +94,40 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+  },
+  headerAuth: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    paddingRight: 14,
+    maxWidth: 260,
+  },
+  userInfo: {
+    maxWidth: 140,
+    alignItems: "flex-end",
+  },
+  displayName: {
+    fontSize: 14,
+    fontWeight: "700",
+    color: "#111111",
+  },
+  username: {
+    marginTop: 2,
+    fontSize: 12,
+    color: "#666666",
+  },
+  logoutButton: {
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 6,
+    backgroundColor: "#111111",
+  },
+  logoutButtonPressed: {
+    opacity: 0.75,
+  },
+  logoutText: {
+    fontSize: 13,
+    fontWeight: "700",
+    color: "#ffffff",
   },
 });
