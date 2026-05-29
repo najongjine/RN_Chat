@@ -3,7 +3,7 @@
 import { TarotCardPickerModal } from "@/components/TarotCardPickerModal";
 import { tarotCards } from "@/constants/tarotCards";
 import { useAuth } from "@/context/AuthContext";
-import { useLocalSearchParams } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
   Button,
@@ -25,7 +25,7 @@ export default function ChatScreen() {
   const params = useLocalSearchParams();
   const otherId = Number(params?.otherId || 0);
   const otherName = String(params?.otherName || "");
-  const { user, accessToken } = useAuth();
+  const { user, accessToken, validateSession, signOut } = useAuth();
   const [roomId, setRoomId] = useState("");
 
   const [socket, setSocket] = useState<Socket | null>(null);
@@ -39,59 +39,88 @@ export default function ChatScreen() {
 
   // 화면 진입하면 무조건 실행
   useEffect(() => {
-    // 소켓을 직접 조작하기 위해서 socket 객체를 만듬
-    /* 쉽게 생각하면 const newSocket = io(HONO_SERVER_API...
-    이 코드가 socket 서버 접속 해주는놈  */
-    const newSocket = io(HONO_SERVER_API, {
-      transports: ["websocket"],
-    });
+    let newSocket: Socket | null = null;
+    let cancelled = false;
 
-    setSocket(newSocket); // 화면에 보일때 쓰려고 state변수에 또 따로 저장
-
-    // connect라는 메세지 받으면 어떻게 할거야?
-    newSocket.on("connect", () => {
-      // f12 콘솔에 연결성공이라는 글자 띄울거야
-      console.log(`서버 연결 성공`, newSocket?.id);
-      setConnected(true); // 화면에 보일때 쓰려고 state변수에 또 따로 저장
-
-      // emit: 메세지 발사
-      newSocket.emit("join_room", {
-        receiverId: otherId,
-        userId: user?.id || 0,
-        roomType: "direct",
-      });
-    });
-    newSocket.on("disconnect", () => {
-      console.log(`서버 연결 끊김`);
-      setConnected(false);
-    });
-    newSocket.on("joined_room", (data) => {
-      console.log("방 입장 완료", data);
-
-      if (!data?.success) {
-        console.log("방 입장 실패:", data?.msg || "");
+    async function connectAfterAuthCheck() {
+      if (!HONO_SERVER_API || !accessToken || !user?.id) {
+        await signOut();
+        router.replace("/LoginScreen");
         return;
       }
 
-      // 서버가 준 진짜 roomId 저장
-      setRoomId(data?.roomId || "");
+      const valid = await validateSession();
+      if (cancelled) return;
 
-      // 그 roomId로 이전 메시지 조회
-      newSocket.emit("get_messages", {
-        roomId: data.roomId,
+      if (!valid) {
+        router.replace("/LoginScreen");
+        return;
+      }
+      // 소켓을 직접 조작하기 위해서 socket 객체를 만듬
+      /* 쉽게 생각하면 const newSocket = io(HONO_SERVER_API...
+    이 코드가 socket 서버 접속 해주는놈  */
+      newSocket = io(HONO_SERVER_API, {
+        transports: ["websocket"],
       });
-    });
-    newSocket.on("message_list", (messageList: ChatMessageType[]) => {
-      setMessage(messageList);
-    });
-    newSocket.on("receive_message", (message: ChatMessageType) => {
-      setMessage((prev) => [...prev, message]);
-    });
+      const activeSocket = newSocket;
+
+      setSocket(activeSocket); // 화면에 보일때 쓰려고 state변수에 또 따로 저장
+
+      // connect라는 메세지 받으면 어떻게 할거야?
+      newSocket.on("connect", () => {
+        // f12 콘솔에 연결성공이라는 글자 띄울거야
+        console.log(`서버 연결 성공`, newSocket?.id);
+        setConnected(true); // 화면에 보일때 쓰려고 state변수에 또 따로 저장
+
+        // emit: 메세지 발사
+        activeSocket.emit("join_room", {
+          receiverId: otherId,
+          userId: user?.id || 0,
+          roomType: "direct",
+        });
+      });
+      newSocket.on("disconnect", () => {
+        console.log(`서버 연결 끊김`);
+        setConnected(false);
+      });
+      newSocket.on("joined_room", (data) => {
+        console.log("방 입장 완료", data);
+
+        if (!data?.success) {
+          console.log("방 입장 실패:", data?.msg || "");
+          return;
+        }
+
+        // 서버가 준 진짜 roomId 저장
+        setRoomId(data?.roomId || "");
+
+        // 그 roomId로 이전 메시지 조회
+        activeSocket.emit("get_messages", {
+          roomId: data.roomId,
+        });
+      });
+      newSocket.on("message_list", (messageList: ChatMessageType[]) => {
+        setMessage(messageList);
+      });
+      newSocket.on("receive_message", (message: ChatMessageType) => {
+        setMessage((prev) => [...prev, message]);
+      });
+    }
+
+    void connectAfterAuthCheck();
 
     return () => {
-      newSocket.disconnect();
+      cancelled = true;
+      newSocket?.disconnect();
     };
-  }, [HONO_SERVER_API, user?.id, otherId]);
+  }, [
+    HONO_SERVER_API,
+    accessToken,
+    user?.id,
+    otherId,
+    signOut,
+    validateSession,
+  ]);
 
   const sendMessage = () => {
     if (!socket) return;

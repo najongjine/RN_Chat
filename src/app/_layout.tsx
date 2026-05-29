@@ -66,13 +66,15 @@ function RootTabs() {
         }}
       />
 
-      <Tabs.Screen
-        name="ChatScreen"
-        options={{
-          title: "채팅",
-          href: null,
-        }}
-      />
+      <Tabs.Protected guard={!!user?.id}>
+        <Tabs.Screen
+          name="ChatScreen"
+          options={{
+            title: "채팅",
+            href: null,
+          }}
+        />
+      </Tabs.Protected>
 
       <Tabs.Protected guard={!user?.id}>
         <Tabs.Screen

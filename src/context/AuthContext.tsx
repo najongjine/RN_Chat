@@ -1,13 +1,14 @@
+import { AuthSessionType } from "@/app/type/types";
 import * as SecureStore from "expo-secure-store";
 import {
   createContext,
   PropsWithChildren,
+  useCallback,
   useContext,
   useEffect,
   useState,
 } from "react";
 import { Platform } from "react-native";
-import { AuthSessionType } from "@/app/type/types";
 
 const AUTH_SESSION_KEY = "auth_session";
 
@@ -16,6 +17,7 @@ type AuthContextType = {
   user: AuthSessionType["user"] | null;
   accessToken: string | null;
   isLoading: boolean;
+  validateSession: () => Promise<boolean>;
   signIn: (session: AuthSessionType) => Promise<void>;
   signOut: () => Promise<void>;
 };
@@ -56,13 +58,12 @@ function isAuthSession(value: unknown): value is AuthSessionType {
   const session = value as AuthSessionType;
   return (
     typeof session.access_token === "string" &&
-    typeof session.user?.id === "number" &&
-    typeof session.user?.username === "string" &&
-    typeof session.user?.display_name === "string"
+    typeof Number(session.user?.id) === "number"
   );
 }
 
 export function AuthProvider({ children }: PropsWithChildren) {
+  const API_BASE_URL = process.env.EXPO_PUBLIC_HONO_SERVER_API;
   const [session, setSession] = useState<AuthSessionType | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -88,15 +89,42 @@ export function AuthProvider({ children }: PropsWithChildren) {
     void restoreSession();
   }, []);
 
-  async function signIn(newSession: AuthSessionType) {
+  const signIn = useCallback(async (newSession: AuthSessionType) => {
     await storeSession(newSession);
     setSession(newSession);
-  }
+  }, []);
 
-  async function signOut() {
+  const signOut = useCallback(async () => {
     await removeSession();
     setSession(null);
-  }
+  }, []);
+
+  const validateSession = useCallback(async () => {
+    if (!session?.access_token || !API_BASE_URL) {
+      await signOut();
+      return false;
+    }
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/user/validate_token`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+        },
+      });
+      const result = await response.json();
+
+      if (!result?.success) {
+        await signOut();
+        return false;
+      }
+
+      return true;
+    } catch {
+      await signOut();
+      return false;
+    }
+  }, [API_BASE_URL, session?.access_token, signOut]);
 
   return (
     <AuthContext.Provider
@@ -105,6 +133,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
         user: session?.user ?? null,
         accessToken: session?.access_token ?? null,
         isLoading,
+        validateSession,
         signIn,
         signOut,
       }}
