@@ -1,8 +1,9 @@
 // https://chatgpt.com/share/6a14e956-62c4-83ab-966b-536b4d8d6ac3
 
 import { useAuth } from "@/context/AuthContext";
+import { useRequireAuth } from "@/hooks/useRequireAuth";
 import { useFocusEffect } from "@react-navigation/native";
-import { Link, router } from "expo-router";
+import { router } from "expo-router";
 import { useCallback, useState } from "react";
 import {
   ActivityIndicator,
@@ -18,6 +19,7 @@ import { ApiResultType, UserType } from "./type/types";
 export default function HomeScreen() {
   const API_BASE_URL = process.env.EXPO_PUBLIC_HONO_SERVER_API;
   const { accessToken } = useAuth();
+  const { requireAuth } = useRequireAuth();
   const [userList, setUserList] = useState<UserType[]>([]);
   const [loading, setLoading] = useState(false);
   const [erroMsg, setErrorMsg] = useState("");
@@ -86,13 +88,20 @@ export default function HomeScreen() {
           <Pressable
             style={styles.userCard}
             onPress={() => {
-              router.push({
-                pathname: "/ChatScreen",
-                params: {
-                  otherId: Number(item?.id || 0),
-                  otherName: String(item?.display_name || ""),
+              requireAuth(
+                () => {
+                  router.push({
+                    pathname: "/ChatScreen",
+                    params: {
+                      otherId: Number(item?.id || 0),
+                      otherName: String(item?.display_name || ""),
+                    },
+                  });
                 },
-              });
+                {
+                  message: "채팅방에 들어가려면 먼저 로그인해주세요.",
+                },
+              );
             }}
           >
             <Text style={styles.username}>{item.username}</Text>
@@ -102,9 +111,19 @@ export default function HomeScreen() {
         )}
       />
 
-      <Link href="/ChatScreen" asChild>
-        <Button title="탐색 화면으로 이동" />
-      </Link>
+      <Button
+        title="채팅 화면으로 이동"
+        onPress={() => {
+          requireAuth(
+            () => {
+              router.push("/ChatScreen");
+            },
+            {
+              message: "채팅방에 들어가려면 먼저 로그인해주세요.",
+            },
+          );
+        }}
+      />
     </View>
   );
 }

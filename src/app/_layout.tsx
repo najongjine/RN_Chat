@@ -1,6 +1,7 @@
 // src/app/_layout.tsx
 
 import { AuthProvider, useAuth } from "@/context/AuthContext";
+import { RequireAuthProvider } from "@/hooks/useRequireAuth";
 import { router, Tabs } from "expo-router";
 import {
   ActivityIndicator,
@@ -13,7 +14,9 @@ import {
 export default function RootLayout() {
   return (
     <AuthProvider>
-      <RootTabs />
+      <RequireAuthProvider>
+        <RootTabs />
+      </RequireAuthProvider>
     </AuthProvider>
   );
 }
